@@ -439,6 +439,41 @@ int main() {
                 customer.user_login();
                 // customer tasks
                 cout << "You are logged in as a customer." << endl;
+                int choice,flag;
+                Customer cust;
+                            do{
+                                cout<<"\n\n";
+                                cout<<"Welcome "<<endl;
+                                cout<<"-----------------------------------------------------------------------"<<endl;
+                                cout<<"1. Display Profile\n2. Borrow a Book\n3. Return a Book\n4. Logout"<<endl;
+                                cout<<"Enter your choice:";
+                                cin>>choice;
+                                switch(choice){
+                                    case 1:{
+                                        cust.display_profile();
+                                        break;
+                                    }
+                                    case 2:{
+                                        Books book;
+                                        cust.borrow_book(book);
+                                        break;
+                                    }
+                                    case 3:{
+                                        cust.return_book();
+                                        break;
+                                    }
+                                    case 4:{
+                                        flag=1;
+                                        break;
+                                    }
+                                    default:{
+                                        cout<<"Invalid choice!";
+                                        break;
+                                    }
+                                }
+                            }while(flag!=1);
+                            break;
+                        }
                 break;
 
             case 4:
