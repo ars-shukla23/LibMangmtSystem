@@ -401,23 +401,62 @@ void driver_function(){
     }
 
 } 
+int main() {
+    int choice;
+    bool exit = false;
+    User user;
+    Customer customer;
+    Staff staff;
+    Books books;
 
+    while (!exit) {
+        cout << "\nWelcome to the Library Management System!" << endl;
+        cout << "1. Login as admin" << endl;
+        cout << "2. Login as staff" << endl;
+        cout << "3. Login as customer" << endl;
+        cout << "4. Create a new user account" << endl;
+        cout << "5. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
 
+        switch (choice) {
+            case 1:
+                user.user_type = 1;
+                user.user_login();
+                if (admin_login_flag) {
+                    // admin tasks
+                    cout << "You are logged in as an admin." << endl;
+                }
+                break;
 
+            case 2:
+                staff.user_login();
+                // staff tasks
+                cout << "You are logged in as a staff member." << endl;
+                break;
 
-int main(){
-   //Staff s;
-   //c.create_account();
-   //c.register_customer();
-   //c.display_profile();
-    //s.user_login();
-   //Admin a;
-   //a.remove_user();
-   //Customer c;
-   //Books b;
-   //c.create_account();
-   //c.borrow_book(b);
-   driver_function();
-   
-   return 0;
+            case 3:
+                customer.user_login();
+                // customer tasks
+                cout << "You are logged in as a customer." << endl;
+                break;
+
+            case 4:
+                cout << "Enter user type (1=admin, 2=staff, 3=customer): ";
+                cin >> user.user_type;
+                user.create_account();
+                break;
+
+            case 5:
+                exit = true;
+                cout << "Thank you for using the Library Management System!" << endl;
+                break;
+
+            default:
+                cout << "Invalid choice. Please try again." << endl;
+                break;
+        }
+    }
+
+    return 0;
 }
