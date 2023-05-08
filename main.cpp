@@ -2,6 +2,8 @@
 #include<string>
 #include<fstream>
 #include<vector>
+#include <cstdlib>
+
 
 using namespace std;
 
@@ -19,6 +21,7 @@ class User{
     int find_id_passwd(string userid,string password,string filename);
     void create_account();
     void user_login();
+    friend class Admin;
 };
 
 void User::create_account(){
@@ -113,7 +116,7 @@ void User::user_login()
             cin >> login_id;
             cout << "Enter your password:";
             cin >> login_password;
-            if (find_id_passwd(login_id, login_password, "staffid.csv" ) == 1) {
+            if (find_id_passwd(login_id, login_password, "customerid.csv" ) == 1) {
                 cout << "Login Successful. Welcome user!" << endl;
                 login_success = true;
             }
@@ -299,6 +302,8 @@ int Customer::is_book_available(string book){
 class Admin: public User{
      public:
       void remove_user(); 
+      void update_user_info();
+      void admin_driver();
 
 };
 void Admin::remove_user(){
@@ -345,62 +350,92 @@ void Admin::remove_user(){
      cout<<user_id_remove<<" has been removed."<<endl;
 }
 
-void admin_driver(){
+void Admin::update_user_info() {
+    string user_id_update;
+    cout << "Enter the User ID of the user you want to update: ";
+    cin >> user_id_update;
+
+    // Search for the user in the file and get the position
+    fstream file;
+    file.open("customer.csv");
+    string lines;
+    vector<string>id_vec;
+    vector<string>name_vec;
+    vector<int>age_vec;
+    vector<string>phone_vec;
+    vector<string>email_vec;
+    while(getline(file, lines)){
+        int pos1, pos2, pos3, pos4;
+        string id, name, phone, email;
+        int age;
+
+        pos1 = lines.find(',');
+        id = lines.substr(0, pos1);
+
+        pos2 = lines.find(',', pos1 + 1);
+        name = lines.substr(pos1 + 1, pos2 - pos1 - 1);
+
+        pos3 = lines.find(',', pos2 + 1);
+        age = stoi(lines.substr(pos2 + 1, pos3 - pos2 - 1));
+
+        pos4 = lines.find(',', pos3 + 1);
+        phone = lines.substr(pos3 + 1, pos4 - pos3 - 1);
+
+        email = lines.substr(pos4 + 1);
+        if (id == user_id_update) {
+            cout << "Enter new name: ";
+            cin >> name;
+            cout << "Enter new age: ";
+            cin >> age;
+            cout << "Enter new phone number: ";
+            cin >> phone;
+            cout << "Enter new email ID: ";
+            cin >> email;
+        }
+        id_vec.push_back(id);
+        name_vec.push_back(name);
+        age_vec.push_back(age);
+        phone_vec.push_back(phone);
+        email_vec.push_back(email);  
+     }
+     file.close();
+     
+     // Rewrite the file with updated information
+     ofstream file2;
+     file2.open("customer.csv");
+     for(int i=0;i<id_vec.size();i++){
+            file2<<id_vec[i]<<","<<name_vec[i]<<","<<age_vec[i]<<","<<phone_vec[i]<<","<<email_vec[i]<<endl;
+      }
+     file2.close();
+     cout<<"User info for "<< user_id_update << " has been updated."<<endl;
+}
+
+void Admin::admin_driver(){
     Admin a;
     a.user_login();
     if(admin_login_flag){
         int ch;
         do{
-           cout<<"1)Remove User"<<endl;
-           cout<<"2) Update User Info"<<endl;
-           cout<<"3)Logout"<<endl;
-           cout<<"Enter your choice";
+           cout<<"Welcome to Admin Panel"<<endl;
+           cout<<"-----------------------------------------------------------------------"<<endl;
+           cout<<"1) Remove User\n2) Update User Info\n3) Logout"<<endl;
+           cout<<"Enter your choice: ";
            cin>>ch;
-           if(ch==1){
-                Admin a1;
-                a1.remove_user();
+           switch(ch) {
+                case 1:
+                    a.remove_user();
+                    break;
+                case 2:
+                    a.update_user_info();
+                    break;
+                default:
+                    break;        
            }
-           else if(ch==3){
-                 break;
-           }
-                  
-        }while(ch!=3);
+        } while(ch!=3);
     }
-
 }
 
-void driver_function(){
-    int ch;
-     while(ch!=5){
-        cout<<"Welcome to The Library Management System!"<<endl;
-        cout<<"1)User Login"<<endl;
-        cout<<"2)Staff Login"<<endl;
-        cout<<"3)New Here?"<<endl;
-        cout<<"4)Admin"<<endl;
-        cout<<"5)Exit"<<endl;
-        cout<<"Enter your choice!"<<endl;
-        cin>>ch;
 
-        switch(ch){
-            case 1:
-              break;
-            case 2:
-              break;
-            case 3:
-               break;
-            case 4:
-                admin_driver();
-                
-
-
-
-        }
-
-
-
-    }
-
-} 
 int main() {
     int choice;
     bool exit = false;
@@ -426,6 +461,8 @@ int main() {
                 if (admin_login_flag) {
                     // admin tasks
                     cout << "You are logged in as an admin." << endl;
+                    Admin admin;
+                    admin.admin_driver();
                 }
                 break;
 
@@ -435,12 +472,13 @@ int main() {
                 cout << "You are logged in as a staff member." << endl;
                 break;
 
-            case 3:
+            case 3:{
                 customer.user_login();
                 // customer tasks
                 cout << "You are logged in as a customer." << endl;
-                int choice,flag;
-                Customer cust;
+                
+            int choice,flag;
+            Customer cust;
                             do{
                                 cout<<"\n\n";
                                 cout<<"Welcome "<<endl;
@@ -474,8 +512,7 @@ int main() {
                             }while(flag!=1);
                             break;
                         }
-                break;
-
+                       
             case 4:
                 cout << "Enter user type (1=admin, 2=staff, 3=customer): ";
                 cin >> user.user_type;
