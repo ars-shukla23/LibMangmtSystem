@@ -202,8 +202,9 @@ class Customer: public User{
     void register_customer();
     void display_profile();
     int is_book_available(string book);
+    int is_book_borrowed(string book);
     void borrow_book(Books& obj);
-    void return_book();
+    void return_book(Books& obj);
 
     friend class Books;
 };
@@ -256,8 +257,33 @@ void Customer:: borrow_book(Books& obj){
 
 }
 
-void Customer::return_book(){
-
+void Customer::return_book(Books& obj) {
+    string returned_book;
+    cout << "Enter the book you want to return:";
+    cin >> returned_book;
+    if (is_book_borrowed(returned_book)) {
+        string date_returned;
+        cout << "The book you wish to return is borrowed by you." << endl;
+        cout << "Enter the date of return in DD/MM/YYYY:";
+        cin >> date_returned;
+        obj.increment_qty(returned_book, 1);
+        ifstream file1("borrowing.csv");
+        ofstream file2("temp.csv", ios::app);
+        string user_id_borrowed, book_borrowed, date_borrowed;
+        while (getline(file1, user_id_borrowed, ',') && getline(file1, book_borrowed, ',') && getline(file1, date_borrowed)) {
+            if (user_id_borrowed == user_id && book_borrowed == returned_book) {
+                continue;
+            }
+            file2 << user_id_borrowed << "," << book_borrowed << "," << date_borrowed << endl;
+        }
+        file1.close();
+        file2.close();
+        remove("borrowing.csv");
+        rename("temp.csv", "borrowing.csv");
+        cout << "The book " << returned_book << " has been returned." << endl;
+    } else {
+        cout << "The book is not borrowed by you!" << endl;
+    }
 }
 
 int Customer::is_book_available(string book){
@@ -296,6 +322,24 @@ int Customer::is_book_available(string book){
 
 }
 
+int Customer::is_book_borrowed(string book){
+    ifstream file;
+    file.open("borrowing.csv");
+    string lines;
+    vector<string>borrowed_books;
+    while(getline(file,lines)){
+        int pos;
+        pos=lines.find(',');
+        string borrowed_book=lines.substr(pos+1);
+        borrowed_books.push_back(borrowed_book);
+    }
+    for(int i=0;i< borrowed_books.size();i++){
+        if(borrowed_books[i]==book){
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 
@@ -497,7 +541,8 @@ int main() {
                                         break;
                                     }
                                     case 3:{
-                                        cust.return_book();
+                                        Books book;
+                                        cust.return_book(book);
                                         break;
                                     }
                                     case 4:{
@@ -532,3 +577,7 @@ int main() {
 
     return 0;
 }
+
+
+
+
