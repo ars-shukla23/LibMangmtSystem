@@ -205,6 +205,8 @@ class Customer: public User{
     int is_book_borrowed(string book);
     void borrow_book(Books& obj);
     void return_book(Books& obj);
+    void fetching_and_display(string userid);
+    int is_registered(string userid);
 
     friend class Books;
 };
@@ -339,6 +341,51 @@ int Customer::is_book_borrowed(string book){
         }
     }
     return 0;
+}
+
+int Customer::is_registered(string userid){
+    int return_value=0;
+    ifstream file;
+    file.open("customer.csv");
+    string lines;
+    vector<string>customerids_vec;
+    while(getline(file,lines)){
+        int pos=lines.find(',');
+        string cusids=lines.substr(0,pos);
+        customerids_vec.push_back(cusids);
+        for(int i=0;i<customerids_vec.size();i++){
+            if(customerids_vec[i]==userid){
+                 return_value=1;
+                 
+            }
+            
+        }
+
+    }
+    return return_value;
+    
+}
+void Customer::fetching_and_display(string userid){
+    ifstream file;
+    file.open("customer.csv");
+    string lines;
+    vector<string>customerid_vec;
+    while(getline(file,lines)){
+        int pos1;
+        string customerid=lines.substr(0,pos1);
+        customerid_vec.push_back(customerid);
+        for(int i=0;i<customerid_vec.size();i++){
+            if(customerid_vec[i]==userid){
+                int pos2=lines.find(',');
+                string customerid2=lines.substr(0,pos2);
+                //Pointer! I left work here.
+
+
+            }
+        }
+        
+    }
+
 }
 
 
@@ -532,7 +579,18 @@ int main() {
                                 cin>>choice;
                                 switch(choice){
                                     case 1:{
-                                        cust.display_profile();
+                                        string temp_id=cust.cuser_id;
+                                        if(cust.is_registered(temp_id)==1){
+                                            //cust.display_profile();
+                                        }
+                                        else{
+                                            cout<<"It seems your profile is not registered."<<endl;
+                                            cout<<"Don't worry,we'll register you right away!"<<endl;
+                                            cust.register_customer();
+                                            cout<<"Here's your profile!"<<endl;
+                                            cust.display_profile();
+                                        }
+                                        //cust.display_profile();
                                         break;
                                     }
                                     case 2:{
