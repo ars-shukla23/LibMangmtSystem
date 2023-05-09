@@ -2,7 +2,11 @@
 #include<string>
 #include<fstream>
 #include<vector>
+#include <sstream>
+#include <ctime>
 #include <cstdlib>
+#include <chrono>
+#include <cmath>
 
 
 using namespace std;
@@ -119,6 +123,7 @@ void User::user_login()
             if (find_id_passwd(login_id, login_password, "customerid.csv" ) == 1) {
                 cout << "Login Successful. Welcome user!" << endl;
                 login_success = true;
+                user_id=login_id;
             }
             else {
                 cout << "Incorrect login ID or password!" << endl;
@@ -129,16 +134,7 @@ void User::user_login()
 }
 
 
-class Staff: public User{
-   int StaffRno;
-   public:
-   Staff(){
-    user_type=2;
-   }
-   
 
-
-};
 
 class Books{
     int bookid;
@@ -147,7 +143,7 @@ class Books{
     string author;
     string publisher;
     int qty;
-    public:
+    public:  
       void increment_qty(string book_name,int increment);
 };
 
@@ -195,8 +191,16 @@ class Customer: public User{
    int age;
    int phoneno;
    string email;
+   double fine;
+   string book;
+   std::tm due_date;
+
    public:
+   string c_id;
+   friend class Staff;
+   friend class Books;
    Customer(){
+    c_id=user_id;
     user_type=3;
    }
     void register_customer();
@@ -205,10 +209,7 @@ class Customer: public User{
     int is_book_borrowed(string book);
     void borrow_book(Books& obj);
     void return_book(Books& obj);
-    void fetching_and_display(string userid);
     int is_registered(string userid);
-
-    friend class Books;
 };
 
 
@@ -365,28 +366,49 @@ int Customer::is_registered(string userid){
     return return_value;
     
 }
-void Customer::fetching_and_display(string userid){
-    ifstream file;
-    file.open("customer.csv");
-    string lines;
-    vector<string>customerid_vec;
-    while(getline(file,lines)){
-        int pos1;
-        string customerid=lines.substr(0,pos1);
-        customerid_vec.push_back(customerid);
-        for(int i=0;i<customerid_vec.size();i++){
-            if(customerid_vec[i]==userid){
-                int pos2=lines.find(',');
-                string customerid2=lines.substr(0,pos2);
-                //Pointer! I left work here.
 
+class Staff: public User{
+   int StaffRno;
+   public:
+   string C_id;
+   Staff(){
+    C_id=user_id;
+    user_type=2;
+   }
+   void getuser();
+   void viewBorrowingHistory(const string& C_id);
+};
 
-            }
-        }
-        
+void getuser() {
+        std::string C_id;
+        cout<<"Enter the user id: "<<endl;
+        cin>>C_id;
+        void viewBorrowingHistory(const string& C_id);
+
+   }
+
+void Staff::viewBorrowingHistory(const string& C_id){
+    std::ifstream file("borrowing.csv");
+
+    if (!file) {
+        std::cerr << "Error: borrowing.csv file not found" << std::endl;
+        return;
     }
 
+    std::string line;
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+        std::string bookId, customerId, borrowDate, returnDate;
+        if (!(iss >> bookId >> customerId >> borrowDate >> returnDate)) {
+            continue;
+        }
+
+        if (customerId == C_id) {
+            std::cout << "Book ID: " << bookId << ", Borrow Date: " << borrowDate << ", Return Date: " << returnDate << std::endl;
+        }
+    }
 }
+
 
 
 
@@ -561,6 +583,7 @@ int main() {
                 staff.user_login();
                 // staff tasks
                 cout << "You are logged in as a staff member." << endl;
+                staff.getuser();
                 break;
 
             case 3:{
@@ -579,9 +602,9 @@ int main() {
                                 cin>>choice;
                                 switch(choice){
                                     case 1:{
-                                        string temp_id=cust.cuser_id;
+                                        string temp_id=cust.c_id;
                                         if(cust.is_registered(temp_id)==1){
-                                            //cust.display_profile();
+                                            cust.display_profile();
                                         }
                                         else{
                                             cout<<"It seems your profile is not registered."<<endl;
@@ -590,7 +613,7 @@ int main() {
                                             cout<<"Here's your profile!"<<endl;
                                             cust.display_profile();
                                         }
-                                        //cust.display_profile();
+                                        
                                         break;
                                     }
                                     case 2:{
