@@ -42,7 +42,7 @@ void User::create_account(){
       password=temp;
       if (user_type==3){
         fstream file;
-        file.open("customer.csv");
+        file.open("customerid.csv");
         file<<user_id<<","<<password<<endl;
         file.close();
       }
@@ -379,7 +379,7 @@ class Staff: public User{
    void viewBorrowingHistory(const string& C_id);
 };
 
-void getuser() {
+void Staff::getuser() {
         std::string C_id;
         cout<<"Enter the user id: "<<endl;
         cin>>C_id;
@@ -658,7 +658,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
